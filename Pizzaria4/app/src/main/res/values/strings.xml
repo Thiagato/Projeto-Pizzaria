@@ -1,7 +1,0 @@
-<resources>
-    <string name="app_name">Pizzaria</string>
-    <string name="title_activity_pedido">PedidoActivity</string>
-    <string name="title_activity_pizza">PizzaActivity</string>
-    <string name="title_activity_login">LoginActivity</string>
-    <string name="title_activity_cadastro_cliente">CadastroClienteActivity</string>
-</resources>
