@@ -26,35 +26,33 @@ class CadastroPedidoActivity : ComponentActivity() {
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
+
+
+        database = AppDatabase.getDatabase(applicationContext)
+
+
+        val clienteId = intent.getIntExtra("clienteId", 0)
+        val clienteNome = intent.getStringExtra("nome") ?: "Cliente"
+        val clienteTelefone = intent.getStringExtra("telefone") ?: ""
+
         setContent {
             PizzariaTheme {
-                CadastroPedidoScreen()
+                CadastroPedidoScreen(clienteId, clienteNome)
             }
         }
-
-        // Inicializa o banco de dados
-        database = AppDatabase.getDatabase(applicationContext)
     }
 
     @Composable
-    fun CadastroPedidoScreen() {
-        val scope = rememberCoroutineScope() // Coloque dentro do @Composable
-        var selectedClientId by remember { mutableStateOf(0) }
-        var selectedProducts by remember { mutableStateOf(listOf<Pizza>()) }
+    fun CadastroPedidoScreen(clienteId: Int, clienteNome: String) {
+        val scope = rememberCoroutineScope()
+        var selectedProducts by remember { mutableStateOf(mutableListOf<Pizza>()) }
         var totalValue by remember { mutableStateOf(0.0) }
-
-
-        val clientes = listOf(
-            Cliente(clienteId = 1, nome = "brito", telefone = "123456789", endereco = "Rua A"),
-            Cliente(clienteId = 2, nome = "julia", telefone = "987654321", endereco = "Rua B")
-
-        )
+        var expandedPizzaId by remember { mutableStateOf<Int?>(null) } // ID da pizza com detalhes expandidos
 
         val pizzas = listOf(
             Pizza(id = 1, nome = "Pizza Margherita", ingredientes = "Tomate, Queijo", preco = 25.0, tamanho = "Médio"),
-            Pizza(id = 2, nome = "Pizza Calabreso", ingredientes = "Calabreso, Queijo", preco = 30.0, tamanho = "Grande"),
-            Pizza(id = 3, nome = "Pizza Portuguesa", ingredientes = "Presunto, Ovo, Queijo", preco = 35.0, tamanho = "Grande"),
-            Pizza(id = 4, nome = "Pizza Niggherita", ingredientes = "Presunto, Ovo, Queijo", preco = 35.0, tamanho = "Grande")
+            Pizza(id = 2, nome = "Pizza Calabresa", ingredientes = "Calabresa, Queijo", preco = 30.0, tamanho = "Grande"),
+            Pizza(id = 3, nome = "Pizza Portuguesa", ingredientes = "Presunto, Ovo, Queijo", preco = 35.0, tamanho = "Grande")
         )
 
         Column(
@@ -63,82 +61,116 @@ class CadastroPedidoActivity : ComponentActivity() {
                 .padding(16.dp),
             horizontalAlignment = Alignment.CenterHorizontally
         ) {
-            Text("Cadastro de Pedido")
+            // Exibe o nome do cliente logado
+            Text("Bem-vindo, $clienteNome!")
 
             Spacer(modifier = Modifier.height(16.dp))
 
-
-            Text("Selecione o Cliente:")
-            clientes.forEach { cliente ->
-                Row(
-                    modifier = Modifier.fillMaxWidth(),
-                    horizontalArrangement = Arrangement.SpaceBetween
-                ) {
-                    Text(text = cliente.nome)
-                    Button(onClick = { selectedClientId = cliente.clienteId }) {
-                        Text("Selecionar")
-                    }
-                }
-            }
-
-            Spacer(modifier = Modifier.height(16.dp))
-
-
+            // Seção para seleção de pizzas
             Text("Selecione as Pizzas:")
             pizzas.forEach { pizza ->
-                Row(
-                    modifier = Modifier.fillMaxWidth(),
-                    horizontalArrangement = Arrangement.SpaceBetween
+                Column(
+                    modifier = Modifier.fillMaxWidth()
                 ) {
-                    Text(text = pizza.nome)
-                    Text(text = "R$ ${pizza.preco}")
-                    Button(onClick = {
-                        selectedProducts = selectedProducts + pizza
-                        totalValue += pizza.preco
-                    }) {
-                        Text("Adicionar")
+                    Row(
+                        modifier = Modifier.fillMaxWidth(),
+                        horizontalArrangement = Arrangement.SpaceBetween
+                    ) {
+                        Text(text = pizza.nome)
+                        Text(text = "R$ ${pizza.preco}")
+                        Button(onClick = {
+                            selectedProducts.add(pizza)
+                            totalValue += pizza.preco
+                        }) {
+                            Text("Adicionar")
+                        }
                     }
+
+                    Spacer(modifier = Modifier.height(8.dp))
+
+                    // Botão para exibir ou ocultar detalhes
+                    Button(onClick = {
+                        expandedPizzaId = if (expandedPizzaId == pizza.id) null else pizza.id
+                    }) {
+                        Text(if (expandedPizzaId == pizza.id) "Ocultar Detalhes" else "Ver Detalhes")
+                    }
+
+                    // Detalhes da pizza (exibidos se a pizza estiver expandida)
+                    if (expandedPizzaId == pizza.id) {
+                        Column(
+                            modifier = Modifier
+                                .fillMaxWidth()
+                                .padding(8.dp)
+                        ) {
+                            Text("Ingredientes: ${pizza.ingredientes}")
+                            Text("Tamanho: ${pizza.tamanho}")
+                            Text("Preço: R$ ${pizza.preco}")
+                        }
+                    }
+
+                    Spacer(modifier = Modifier.height(16.dp))
                 }
-                Spacer(modifier = Modifier.height(8.dp))
             }
 
             Spacer(modifier = Modifier.height(16.dp))
 
+            // mostra os items do pedido
+            if (selectedProducts.isNotEmpty()) {
+                Text("Seu Pedido:")
+                Spacer(modifier = Modifier.height(8.dp))
+                selectedProducts.forEach { pizza ->
+                    Text("- ${pizza.nome} (${pizza.tamanho}): R$ ${pizza.preco}")
+                }
+                Spacer(modifier = Modifier.height(8.dp))
+            } else {
+                Text("Nenhuma pizza adicionada ainda.")
+            }
 
+            Spacer(modifier = Modifier.height(16.dp))
+
+            // mostra o valor total
             Text("Total: R$ $totalValue")
 
             Spacer(modifier = Modifier.height(16.dp))
 
-
+            // Botão para finalizar o pedido
             Button(onClick = {
-                if (selectedClientId != 0 && selectedProducts.isNotEmpty()) {
+                if (selectedProducts.isNotEmpty()) {
+                    val pedido = Pedido(clienteId = clienteId, data = "2024-11-21", valorTotal = totalValue)
 
-                    val pedido = Pedido(clienteId = selectedClientId, data = "2024-11-21", valorTotal = totalValue)
-
-                    //corrotina para salvar no banco de dados
                     scope.launch {
-                        // Inserir o pedido
                         val pedidoId = withContext(Dispatchers.IO) {
                             database.pedidoDao().insertPedido(pedido)
                         }
 
-                        // Associar produtos ao pedido
                         selectedProducts.forEach { pizza ->
-                            val pedidoProduto = PedidoProduto(pedidoId = pedidoId.toInt(), produtoId = pizza.id, quantidade = 1)
+                            val pedidoProduto = PedidoProduto(
+                                pedidoId = pedidoId.toInt(),
+                                produtoId = pizza.id,
+                                quantidade = 1
+                            )
                             withContext(Dispatchers.IO) {
                                 database.pedidoProdutoDao().insertPedidoProduto(pedidoProduto)
                             }
                         }
 
+                        // Exibe um resumo do pedido salvo
+                        val pedidoResumo = selectedProducts.joinToString(separator = "\n") { pizza ->
+                            "- ${pizza.nome} (${pizza.tamanho}): R$ ${pizza.preco}"
+                        }
 
                         Toast.makeText(
                             this@CadastroPedidoActivity,
-                            "Pedido registrado com sucesso! Total: R$ $totalValue",
+                            "Pedido registrado com sucesso!\n\nItens:\n$pedidoResumo\n\nTotal: R$ $totalValue",
                             Toast.LENGTH_LONG
                         ).show()
+
+                        // Limpa
+                        selectedProducts.clear()
+                        totalValue = 0.0
                     }
                 } else {
-                    Toast.makeText(this@CadastroPedidoActivity, "Preencha todos os campos", Toast.LENGTH_SHORT).show()
+                    Toast.makeText(this@CadastroPedidoActivity, "Selecione pelo menos uma pizza", Toast.LENGTH_SHORT).show()
                 }
             }) {
                 Text("Finalizar Pedido")

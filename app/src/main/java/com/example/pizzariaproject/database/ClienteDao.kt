@@ -15,4 +15,7 @@ interface ClienteDao {
 
     @Query("SELECT * FROM cliente_table WHERE clienteId = :id")
     suspend fun obterClientePorId(id: Int): Cliente?
+
+    @Query("SELECT * FROM cliente_table WHERE nome = :nome AND telefone = :telefone")
+    suspend fun obterClientePorNomeETelefone(nome: String, telefone: String): Cliente?
 }

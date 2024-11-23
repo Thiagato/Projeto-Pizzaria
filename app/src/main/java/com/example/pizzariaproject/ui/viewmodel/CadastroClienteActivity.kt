@@ -14,7 +14,13 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.platform.LocalContext
+import com.example.pizzaria.database.AppDatabase
+import com.example.pizzaria.model.Cliente
 import com.example.pizzaria.ui.theme.PizzariaTheme
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.launch
+import kotlinx.coroutines.withContext
 
 class CadastroClienteActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -32,9 +38,11 @@ class CadastroClienteActivity : ComponentActivity() {
 fun CadastroClienteScreen() {
     val context = LocalContext.current
 
+
     var nome by remember { mutableStateOf("") }
     var telefone by remember { mutableStateOf("") }
     var endereco by remember { mutableStateOf("") }
+    var mensagemErro by remember { mutableStateOf("") }
 
     Column(
         modifier = Modifier
@@ -65,13 +73,36 @@ fun CadastroClienteScreen() {
             label = { Text("Endereço") },
             modifier = Modifier.fillMaxWidth()
         )
-        Spacer(modifier = Modifier.height(20.dp))
+        Spacer(modifier = Modifier.height(10.dp))
+
+        if (mensagemErro.isNotEmpty()) {
+            Text(text = mensagemErro, color = androidx.compose.ui.graphics.Color.Red)
+            Spacer(modifier = Modifier.height(10.dp))
+        }
 
         Button(onClick = {
-            // Lógica para salvar o cliente pode ser colocada aqui
-            // Após o cadastro, navega de volta para o login
-            val intent = Intent(context, LoginActivity::class.java)
-            context.startActivity(intent)
+            if (nome.isNotEmpty() && telefone.isNotEmpty() && endereco.isNotEmpty()) {
+                val novoCliente = Cliente(
+                    nome = nome,
+                    telefone = telefone,
+                    endereco = endereco
+                )
+
+                CoroutineScope(Dispatchers.IO).launch {
+                    val database = AppDatabase.getDatabase(context)
+                    val clienteDao = database.clienteDao()
+
+                    clienteDao.inserir(novoCliente)
+
+                  //ir para login
+                    withContext(Dispatchers.Main) {
+                        val intent = Intent(context, LoginActivity::class.java)
+                        context.startActivity(intent)
+                    }
+                }
+            } else {
+                mensagemErro = "Todos os campos são obrigatórios!"
+            }
         }) {
             Text(text = "Cadastrar")
         }

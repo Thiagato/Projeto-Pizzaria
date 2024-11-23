@@ -44,7 +44,7 @@ fun MainScreen() {
             val intent = Intent(context, LoginActivity::class.java)  // ir tela de login
             context.startActivity(intent)
         }) {
-            Text(text = "Ir para Login")
+            Text(text = "Fazer Login")
         }
 
         Spacer(modifier = Modifier.height(16.dp))
@@ -54,17 +54,10 @@ fun MainScreen() {
             val intent = Intent(context, CadastroClienteActivity::class.java)
             context.startActivity(intent)
         }) {
-            Text(text = "Cadastrar Cliente")
+            Text(text = "Cadastro")
         }
 
         Spacer(modifier = Modifier.height(16.dp))
 
-        // Botão para Cadastro de Pedido
-        Button(onClick = {
-            val intent = Intent(context, CadastroPedidoActivity::class.java)
-            context.startActivity(intent)
-        }) {
-            Text(text = "Fazer Pedido")
-        }
     }
 }
