@@ -6,5 +6,6 @@ import androidx.room.Entity
 data class PedidoProduto(
     val pedidoId: Int,
     val produtoId: Int,
+    val produtoNome: String,
     val quantidade: Int
 )

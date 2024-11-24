@@ -1,4 +1,4 @@
-package com.example.pizzaria.database
+package com.example.pizzariaproject.database
 
 import androidx.room.Dao
 import androidx.room.Insert

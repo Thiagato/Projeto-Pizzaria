@@ -18,7 +18,7 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.platform.LocalContext
-import com.example.pizzaria.database.AppDatabase
+import com.example.pizzariaproject.database.AppDatabase
 import com.example.pizzaria.ui.theme.PizzariaTheme
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
@@ -108,6 +108,13 @@ fun LoginScreen() {
             }
         }) {
             Text(text = "Fazer Login")
+        }
+
+
+        Button(onClick = {
+            (context as? android.app.Activity)?.finish() // Chama finish() na Activity
+        }) {
+            Text(text = "Voltar")
         }
     }
 }

@@ -59,5 +59,12 @@ fun MainScreen() {
 
         Spacer(modifier = Modifier.height(16.dp))
 
+//        // Botão para Excluir Banco de Dados
+//        Button(onClick = {
+//            val dbName = "pizzaria_database"
+//            context.deleteDatabase(dbName)
+//        }) {
+//            Text(text = "Excluir Banco de Dados")
+//        }
     }
 }

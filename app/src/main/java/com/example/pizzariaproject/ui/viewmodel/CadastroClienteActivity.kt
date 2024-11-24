@@ -2,6 +2,7 @@ package com.example.pizzariaproject.ui.viewmodel
 
 import android.content.Intent
 import android.os.Bundle
+import android.widget.Toast
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.compose.foundation.layout.*
@@ -14,7 +15,7 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.platform.LocalContext
-import com.example.pizzaria.database.AppDatabase
+import com.example.pizzariaproject.database.AppDatabase
 import com.example.pizzaria.model.Cliente
 import com.example.pizzaria.ui.theme.PizzariaTheme
 import kotlinx.coroutines.CoroutineScope
@@ -81,7 +82,7 @@ fun CadastroClienteScreen() {
         }
 
         Button(onClick = {
-            if (nome.isNotEmpty() && telefone.isNotEmpty() && endereco.isNotEmpty()) {
+            if (nome.length > 3 && telefone.length == 11 && telefone.all { it.isDigit() } && endereco.isNotEmpty()) {
                 val novoCliente = Cliente(
                     nome = nome,
                     telefone = telefone,
@@ -94,17 +95,30 @@ fun CadastroClienteScreen() {
 
                     clienteDao.inserir(novoCliente)
 
-                  //ir para login
+                    // Ir para login
                     withContext(Dispatchers.Main) {
                         val intent = Intent(context, LoginActivity::class.java)
                         context.startActivity(intent)
                     }
                 }
             } else {
-                mensagemErro = "Todos os campos são obrigatórios!"
+                // Mensagens de erro específicas com Toast
+                if (nome.length <= 3) {
+                    Toast.makeText(context, "O nome precisa ter mais de 3 caracteres!", Toast.LENGTH_SHORT).show()
+                } else if (telefone.length != 11 || telefone.any { !it.isDigit() }) {
+                    Toast.makeText(context, "O telefone precisa ter 11 dígitos numéricos!", Toast.LENGTH_SHORT).show()
+                } else {
+                    Toast.makeText(context, "Todos os campos são obrigatórios!", Toast.LENGTH_SHORT).show()
+                }
             }
         }) {
             Text(text = "Cadastrar")
+        }
+
+        Button(onClick = {
+            (context as? android.app.Activity)?.finish() // Chama finish() na Activity
+        }) {
+            Text(text = "Voltar")
         }
     }
 }

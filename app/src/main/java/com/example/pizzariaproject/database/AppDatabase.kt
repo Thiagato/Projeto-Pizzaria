@@ -1,4 +1,4 @@
-package com.example.pizzaria.database
+package com.example.pizzariaproject.database
 
 import android.content.Context
 import androidx.room.Database
