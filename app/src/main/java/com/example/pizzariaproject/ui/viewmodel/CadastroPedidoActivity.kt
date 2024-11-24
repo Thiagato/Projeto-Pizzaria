@@ -38,7 +38,6 @@ class CadastroPedidoActivity : ComponentActivity() {
 
         val clienteId = intent.getIntExtra("clienteId", 0)
         val clienteNome = intent.getStringExtra("nome") ?: "Cliente"
-        val clienteTelefone = intent.getStringExtra("telefone") ?: ""
 
         setContent {
             PizzariaTheme {
@@ -62,7 +61,8 @@ class CadastroPedidoActivity : ComponentActivity() {
         val pizzas = listOf(
             Pizza(id = 1, nome = "Pizza Margherita", ingredientes = "Tomate, Queijo", preco = 25.0, tamanho = "Médio"),
             Pizza(id = 2, nome = "Pizza Calabresa", ingredientes = "Calabresa, Queijo", preco = 30.0, tamanho = "Grande"),
-            Pizza(id = 3, nome = "Pizza Portuguesa", ingredientes = "Presunto, Ovo, Queijo", preco = 35.0, tamanho = "Grande")
+            Pizza(id = 3, nome = "Pizza Portuguesa", ingredientes = "Presunto, Ovo, Queijo", preco = 35.0, tamanho = "Grande"),
+            Pizza(id = 5, nome = "Pizza 4 Queijos", ingredientes = "Queijo, Queijo ,Queijo, Queijo ", preco = 14.0, tamanho = "Grande")
         )
 
         Column(
@@ -97,7 +97,7 @@ class CadastroPedidoActivity : ComponentActivity() {
                         }
                     }
 
-                    Spacer(modifier = Modifier.height(8.dp))
+//                    Spacer(modifier = Modifier.height(8.dp))
 
                     // Botão para exibir ou ocultar detalhes
                     Button(onClick = {
@@ -111,7 +111,7 @@ class CadastroPedidoActivity : ComponentActivity() {
                         Column(
                             modifier = Modifier
                                 .fillMaxWidth()
-                                .padding(8.dp)
+                                .padding(4.dp)
                         ) {
                             Text("Ingredientes: ${pizza.ingredientes}")
                             Text("Tamanho: ${pizza.tamanho}")
@@ -119,30 +119,17 @@ class CadastroPedidoActivity : ComponentActivity() {
                         }
                     }
 
-                    Spacer(modifier = Modifier.height(16.dp))
+                    Spacer(modifier = Modifier.height(4.dp))
                 }
             }
 
-            Spacer(modifier = Modifier.height(16.dp))
 
-            // mostra os items do pedido
-            if (selectedProducts.isNotEmpty()) {
-                Text("Seu Pedido:")
-                Spacer(modifier = Modifier.height(8.dp))
-                selectedProducts.forEach { pizza ->
-                    Text("- ${pizza.nome} (${pizza.tamanho}): R$ ${pizza.preco}")
-                }
-                Spacer(modifier = Modifier.height(8.dp))
-            } else {
-                Text("Nenhuma pizza adicionada ainda.")
-            }
-
-            Spacer(modifier = Modifier.height(16.dp))
+            Spacer(modifier = Modifier.height(8.dp))
 
             // mostra o valor total
             Text("Total: R$ $totalValue")
 
-            Spacer(modifier = Modifier.height(16.dp))
+            Spacer(modifier = Modifier.height(8.dp))
 
             // Botão para finalizar o pedido
             Button(onClick = {
@@ -176,14 +163,10 @@ class CadastroPedidoActivity : ComponentActivity() {
                             }
                         }
 
-                        // Exibe um resumo do pedido salvo
-                        val pedidoResumo = selectedProducts.joinToString(separator = "\n") { pizza ->
-                            "- ${pizza.nome} (${pizza.tamanho}): R$ ${pizza.preco}"
-                        }
 
                         Toast.makeText(
                             this@CadastroPedidoActivity,
-                            "Pedido registrado com sucesso!\n\nItens:\n$pedidoResumo\n\nTotal: R$ $totalValue",
+                            "Pedido registrado com sucesso!",
                             Toast.LENGTH_LONG
                         ).show()
 
@@ -202,6 +185,19 @@ class CadastroPedidoActivity : ComponentActivity() {
                 (context as? android.app.Activity)?.finish() // Chama finish() na Activity
             }) {
                 Text(text = "Voltar")
+            }
+
+
+            // mostra os items do pedido
+            if (selectedProducts.isNotEmpty()) {
+                Text("Seu Pedido:")
+                Spacer(modifier = Modifier.height(8.dp))
+                selectedProducts.forEach { pizza ->
+                    Text("- ${pizza.nome} (${pizza.tamanho}): R$ ${pizza.preco}")
+                }
+                Spacer(modifier = Modifier.height(8.dp))
+            } else {
+                Text("Nenhuma pizza adicionada ainda.")
             }
         }
     }
